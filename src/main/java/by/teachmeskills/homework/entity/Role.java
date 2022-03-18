@@ -6,6 +6,7 @@ import lombok.Value;
 
 @Value
 @EqualsAndHashCode(callSuper = false)
+// TODO: whole this class just a mass. Rewrite it
 public class Role extends Entity {
     public static final String USER_ROLE = "user";
     public static final int COMMON_USER_ROLE_ID = 1;

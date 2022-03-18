@@ -10,6 +10,7 @@ import java.util.List;
 
 @Value
 public class UserStorage implements Storable<String, User> {
+    // TODO: private
     List<User> users = new ArrayList<>();
 
     @Override

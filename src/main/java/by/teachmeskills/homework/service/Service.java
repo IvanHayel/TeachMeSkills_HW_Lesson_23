@@ -4,6 +4,7 @@ import by.teachmeskills.homework.entity.Entity;
 
 import java.util.List;
 
+// TODO: What is the Service class? God interface? What is 'K' and 'T' ?
 public interface Service<K, T extends Entity> {
     List<T> getAll();
 

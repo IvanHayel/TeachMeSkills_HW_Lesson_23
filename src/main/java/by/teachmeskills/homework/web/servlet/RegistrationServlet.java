@@ -24,8 +24,10 @@ public class RegistrationServlet extends HttpServlet {
     }
 
     @SneakyThrows(IOException.class)
+    // TODO: doPost logic. Method is not needed
     private void register(HttpServletRequest req, HttpServletResponse resp) {
         User user = createUserFromRequestParameters(req);
+        // TODO: if exists?
         if (userService.save(user))
             resp.getWriter().println(RegistrationMessage.SUCCESS.get(user));
         else
@@ -41,6 +43,7 @@ public class RegistrationServlet extends HttpServlet {
         return new User(login, role, name, surname, password);
     }
 
+    // TODO: not a servlet method and a duplicate
     private Role getRole(String roleParameter) {
         roleParameter = roleParameter == null ? Role.USER_ROLE : roleParameter;
         switch (roleParameter) {

@@ -13,6 +13,7 @@ import lombok.SneakyThrows;
 import java.io.IOException;
 
 @WebFilter(filterName = "AdminFilter", servletNames = "AdminServlet")
+// TODO: extends HttpFilter
 public class AdminFilter implements Filter {
     @Override
     @SneakyThrows({IOException.class, ServletException.class})

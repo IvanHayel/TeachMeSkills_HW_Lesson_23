@@ -41,7 +41,7 @@ public class AuthorizationServlet extends HttpServlet {
 
     private void authenticate(String login, String password) {
         if (session == null || writer == null) return;
-        if (userService.contains(login)) {
+        if (userService.contains(login)) { // TODO: revert result. There will be fewer steps of 'if's
             User user = userService.getByKey(login);
             if (user.getPassword().equals(password)) {
                 session.setAttribute(SessionAttribute.USER.get(), user);

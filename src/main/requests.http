@@ -1,3 +1,4 @@
+### TODO: create test folder
 ### Registration
 POST http://localhost:8080/registration?login=admin&password=admin&role=admin&name=Ivan&surname=Hayel
 ### Authorization
