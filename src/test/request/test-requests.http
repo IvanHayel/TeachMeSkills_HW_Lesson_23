@@ -1,0 +1,67 @@
+### Correct registration
+POST http://localhost:8080/registration?id=1&login=user3301&password=3301&name=John&surname=Doe
+### Register existing user
+POST http://localhost:8080/registration?id=1&login=user3301&password=3301&name=John&surname=Doe
+### Register with less parameters
+POST http://localhost:8080/registration?id=1&login=user3301&password=3301&name=John
+### Register with existing login
+POST http://localhost:8080/registration?id=2&login=user3301&password=3301&name=NotJohn&surname=NotDoe
+### Register with existing id
+POST http://localhost:8080/registration?id=1&login=notuser3301&password=3301&name=NotJohn&surname=NotDoe
+
+### Correct authorization
+POST http://localhost:8080/authorization?login=user3301&password=3301
+### Root authorization
+POST http://localhost:8080/authorization?login=root&password=root3301
+### Authorization with less parameters
+POST http://localhost:8080/authorization?login=user3301
+### Authorization with login that not exist
+POST http://localhost:8080/authorization?login=notexist&password=3301
+### Authorization with password mismatch
+POST http://localhost:8080/authorization?login=user3301&password=wrongpwd
+
+### Logout
+POST http://localhost:8080/logout
+
+### Create new post.
+POST http://localhost:8080/post?id=1&content=Hello,+it's+a+new+post
+### Get post by id.
+GET http://localhost:8080/post?id=1
+### Get all posts.
+GET http://localhost:8080/post
+### Delete post.
+DELETE http://localhost:8080/post?id=1
+### Edit post.
+PUT http://localhost:8080/post?id=1&content=Updated+text!
+### Like post.
+PUT http://localhost:8080/post?id=1&like=yep
+
+### Create new comment.
+POST http://localhost:8080/post/comment?post-id=1&comment=New+comment...
+### Delete comment.
+DELETE http://localhost:8080/post/comment?post-id=1&id=1
+### Update comment.
+PUT http://localhost:8080/post/comment?post-id=1&id=1&comment=Updated+comment!
+
+### Get all my posts.
+GET http://localhost:8080/my-posts
+### Delete all my posts.
+DELETE http://localhost:8080/my-posts
+
+### Update user.
+PUT http://localhost:8080/user?name=John&surname=Doe&password=edge3301
+### Delete user.
+DELETE http://localhost:8080/user
+
+### Admin get all users.
+GET http://localhost:8080/admin
+### Admin get concrete user.
+GET http://localhost:8080/admin?id=1
+### Admin create user.
+POST http://localhost:8080/admin?id=3&login=jane01&password=edge3301&name=Jane&surname=Doe
+### Admin delete all common users.
+DELETE http://localhost:8080/admin
+### Admin delete concrete user.
+DELETE http://localhost:8080/admin?id=3
+### Admin update concrete user.
+PUT http://localhost:8080/admin?id=3&login=UserFromAdmin&name=Jane&password=changeIt3301&admin-rights
