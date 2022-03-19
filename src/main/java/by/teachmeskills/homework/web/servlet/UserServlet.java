@@ -32,6 +32,7 @@ public class UserServlet extends HttpServlet {
         resp.getWriter().println(UserMessage.UPDATE_SUCCESS.get(currentUser));
     }
 
+    // TODO: not a servlet method
     private void update(HttpServletRequest req, User userToUpdate) {
         Role role = getRole(req.getParameter(UserParameter.ROLE.get()));
         String name = req.getParameter(UserParameter.NAME.get());
@@ -43,6 +44,7 @@ public class UserServlet extends HttpServlet {
         if (password != null) userToUpdate.setPassword(password);
     }
 
+    // TODO: not a servlet method
     private Role getRole(String roleParameter) {
         roleParameter = roleParameter == null ? Role.USER_ROLE : roleParameter;
         switch (roleParameter) {
@@ -59,6 +61,7 @@ public class UserServlet extends HttpServlet {
         PrintWriter writer = resp.getWriter();
         currentUser = (User) req.getSession().getAttribute(SessionAttribute.USER.get());
         if (userService.removeByKey(currentUser.getLogin()) != null) {
+            // TODO: use redirect to logout servlet instead
             writer.println(UserMessage.DELETE_SUCCESS.get(currentUser));
             req.getSession().invalidate();
         } else {

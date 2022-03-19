@@ -15,6 +15,7 @@ import java.io.IOException;
 @WebFilter(filterName = "AuthorizationFilter", servletNames = {
         "PostServlet", "PostHistoryServlet", "CommentServlet", "UserServlet", "AdminServlet", "LogoutServlet"
 })
+// TODO: extends HttpFilter
 public class AuthorizationFilter implements Filter {
     @Override
     @SneakyThrows({IOException.class, ServletException.class})

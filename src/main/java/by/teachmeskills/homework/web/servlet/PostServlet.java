@@ -37,11 +37,12 @@ public class PostServlet extends HttpServlet {
         else providePostById(postId);
     }
 
+    // TODO: getAllPosts
     private void provideAllPosts() {
         List<Post> posts = postService.getAll();
         writer.println(PostMessage.PROVIDE_ALL_POSTS.get(posts));
     }
-
+    // TODO: getPostById
     private void providePostById(String postId) {
         Integer id = Integer.valueOf(postId);
         Post post = postService.getByKey(id);
@@ -90,6 +91,7 @@ public class PostServlet extends HttpServlet {
         } else writer.println(PostMessage.POST_NOT_EXIST.get(postId));
     }
 
+    // TODO: not a servlet method
     private boolean isAdminOrOwner(Post post) {
         return currentUser.isAdmin() || post.getUser().equals(currentUser);
     }

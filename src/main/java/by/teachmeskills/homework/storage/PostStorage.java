@@ -10,6 +10,8 @@ import java.util.List;
 
 @Value
 public class PostStorage implements Storable<Integer, Post> {
+
+    // TODO: private
     List<Post> posts = new ArrayList<>();
 
     @Override
