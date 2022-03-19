@@ -1,39 +1,39 @@
 package by.teachmeskills.homework.entity;
 
+import by.teachmeskills.homework.role.Role;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class User extends Entity {
-    private static Integer nextId = 0;
-
+    private String login;
+    private String password;
+    private String name;
+    private String surname;
     @EqualsAndHashCode.Exclude
-    // TODO: It's OK to see the whole info about User in toString() method. because it's a inner entity.
-    //  You can create ReadOnlyUserEntity with not private personal info and use it everywhere. In comments in post e.t.c
-    @NonNull private final Integer id = ++nextId;
-    @ToString.Exclude
-    @NonNull private final String login;
+    private final List<Role> roles = new ArrayList<>();
 
-    @EqualsAndHashCode.Exclude @ToString.Exclude
-    // TODO: There can be more than one role for user
-    @NonNull private Role role;
-    @NonNull private String name;
-    @NonNull private String surname;
-    @EqualsAndHashCode.Exclude @ToString.Exclude
-
-    // TODO: so what you are planing to do after deserialization?
-    @NonNull private transient String password;
-
-    // TODO: It's shouldn't be a User method.
-    public boolean isAdmin() {
-        return role.getAccessLevel() > 0;
+    public User(@NonNull Integer id, @NonNull String login, @NonNull String password,
+                @NonNull String name, @NonNull String surname) {
+        this.id = id;
+        this.login = login;
+        this.password = password;
+        this.name = name;
+        this.surname = surname;
     }
 
-    // TODO: getFullName
-    public String getNameWithSurname() {
+    public String getFullName() {
         return String.format("%s %s", name, surname);
+    }
+
+    public boolean addRole(Role role) {
+        return roles.add(role);
     }
 }
