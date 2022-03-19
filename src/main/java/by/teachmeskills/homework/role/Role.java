@@ -4,7 +4,8 @@ import lombok.Getter;
 
 public enum Role {
     ADMIN(1, "admin", 1),
-    COMMON_USER(0, "common-user", 0);
+    COMMON_USER(0, "common-user", 0),
+    ROOT(-999, "root", 999);
 
     @Getter private final Integer id;
     @Getter private final String name;
@@ -14,5 +15,10 @@ public enum Role {
         this.id = id;
         this.name = name;
         this.accessLevel = accessLevel;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
