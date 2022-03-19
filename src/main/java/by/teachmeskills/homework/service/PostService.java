@@ -1,49 +1,74 @@
 package by.teachmeskills.homework.service;
 
+import by.teachmeskills.homework.entity.Comment;
 import by.teachmeskills.homework.entity.Post;
-import by.teachmeskills.homework.storage.PostStorage;
-import by.teachmeskills.homework.storage.Storable;
+import by.teachmeskills.homework.entity.User;
+import by.teachmeskills.homework.storage.EntityStorage;
 import lombok.NonNull;
-import lombok.Value;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Value
-public class PostService implements Service<Integer, Post> {
-    private static final Storable<Integer, Post> postStorage = new PostStorage();
+public class PostService {
+    private static final EntityStorage<Post> postStorage = new EntityStorage<>();
 
-    @Override
+    private static PostService instance;
+
+    private PostService() {
+    }
+
+    public static PostService getInstance() {
+        if (instance == null) instance = new PostService();
+        return instance;
+    }
+
     public List<Post> getAll() {
         return postStorage.getAll();
     }
 
-    @Override
-    public Post getByKey(@NonNull Integer id) {
-        return postStorage.getByKey(id);
+    public Post getById(@NonNull Integer id) {
+        return postStorage.getById(id);
     }
 
-    @Override
+    public List<Post> getUserPosts(@NonNull User user) {
+        List<Post> posts = getAll();
+        return posts.stream()
+                .filter(post -> post.getOwner().equals(user))
+                .collect(Collectors.toList());
+    }
+
+    public Comment getCommentById(@NonNull Post post, @NonNull Integer commentId) {
+        return post.getComments().stream()
+                .filter(item -> item.getId().equals(commentId))
+                .findFirst()
+                .orElse(null);
+    }
+
     public boolean save(@NonNull Post post) {
         return postStorage.save(post);
     }
 
-    @Override
-    public boolean contains(@NonNull Integer id) {
-        return postStorage.contains(id);
+    public boolean isContains(@NonNull Integer id) {
+        return postStorage.isContains(id);
     }
 
-    @Override
-    public Post removeByKey(@NonNull Integer id) {
-        return postStorage.removeByKey(id);
+    public Post removeById(@NonNull Integer id) {
+        return postStorage.removeById(id);
     }
 
-    @Override
-    public List<Post> removeAll() {
+    public boolean removeAll() {
         return postStorage.removeAll();
     }
 
-    @Override
-    public List<Post> removeAll(List<Post> entities) {
-        return postStorage.removeAll(entities);
+    public boolean removeAll(@NonNull List<Post> posts) {
+        return postStorage.removeAll(posts);
+    }
+
+    public boolean isOwner(@NonNull Post post, @NonNull User user) {
+        return post.getOwner().equals(user);
+    }
+
+    public boolean isOwner(@NonNull Comment comment, @NonNull User user) {
+        return comment.getOwner().equals(user);
     }
 }
