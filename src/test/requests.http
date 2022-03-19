@@ -1,0 +1,49 @@
+### Registration
+POST http://localhost:8080/registration?id=1&login=user3301&password=3301&name=John&surname=Doe
+### Authorization
+POST http://localhost:8080/authorization?login=user3301&password=3301
+### Logout
+POST http://localhost:8080/logout
+
+### Create new post.
+POST http://localhost:8080/post?id=1&text=Hello,+it's+a+new+post
+### Get post by id.
+GET http://localhost:8080/post?id=1
+### Get all posts.
+GET http://localhost:8080/post
+### Delete post.
+DELETE http://localhost:8080/post?id=1
+### Edit post.
+PUT http://localhost:8080/post?id=1&text=Updated+text!
+### Like post.
+PUT http://localhost:8080/post?id=1&like=yep
+
+### Create new comment.
+POST http://localhost:8080/post/comment?post-id=1&comment=New+comment...
+### Delete comment.
+DELETE http://localhost:8080/post/comment?post-id=1&id=1
+### Update comment.
+PUT http://localhost:8080/post/comment?post-id=1&id=1&comment=Updated+comment!
+
+### Get all my posts.
+GET http://localhost:8080/my-posts
+### Delete all my posts.
+DELETE http://localhost:8080/my-posts
+
+### Update user.
+PUT http://localhost:8080/user?name=John&surname=Doe&role=user&password=edge3301
+### Delete user.
+DELETE http://localhost:8080/user
+
+### Admin get all users.
+GET http://localhost:8080/admin
+### Admin get concrete user.
+GET http://localhost:8080/admin?login=admin
+### Admin create user.
+POST http://localhost:8080/admin?login=UserFromAdmin&password=edge3301&name=John&surname=Doe
+### Admin delete all users.
+DELETE http://localhost:8080/admin
+### Admin delete concrete user.
+DELETE http://localhost:8080/admin?login=UserFromAdmin
+### Admin update concrete user.
+PUT http://localhost:8080/admin?login=UserFromAdmin&name=Jane&password=changeIt3301
