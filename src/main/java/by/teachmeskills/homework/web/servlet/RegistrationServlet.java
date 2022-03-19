@@ -1,11 +1,7 @@
 package by.teachmeskills.homework.web.servlet;
 
-import by.teachmeskills.homework.entity.Role;
 import by.teachmeskills.homework.entity.User;
-import by.teachmeskills.homework.service.Service;
 import by.teachmeskills.homework.service.UserService;
-import by.teachmeskills.homework.web.constant.message.RegistrationMessage;
-import by.teachmeskills.homework.web.constant.parameter.UserParameter;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,44 +9,40 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 @WebServlet(name = "RegistrationServlet", value = "/registration")
 public class RegistrationServlet extends HttpServlet {
-    private static final Service<String, User> userService = new UserService();
+    private static final UserService userService = UserService.getInstance();
+    private static final String USER_ID_PARAMETER = "id";
+    private static final String USER_LOGIN_PARAMETER = "login";
+    private static final String USER_NAME_PARAMETER = "name";
+    private static final String USER_SURNAME_PARAMETER = "surname";
+    private static final String USER_PASSWORD_PARAMETER = "password";
+    private static final String USER_EXIST_MESSAGE = "User already exist!";
+    private static final String REGISTRATION_SUCCESS_MESSAGE = "%s registered successfully!";
+
+    private transient PrintWriter writer;
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        register(req, resp);
-    }
-
     @SneakyThrows(IOException.class)
-    // TODO: doPost logic. Method is not needed
-    private void register(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        writer = resp.getWriter();
         User user = createUserFromRequestParameters(req);
-        // TODO: if exists?
-        if (userService.save(user))
-            resp.getWriter().println(RegistrationMessage.SUCCESS.get(user));
-        else
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        if (userService.isUserAlreadyExist(user)) {
+            writer.println(USER_EXIST_MESSAGE);
+        } else {
+            userService.save(user);
+            writer.println(String.format(REGISTRATION_SUCCESS_MESSAGE, user));
+        }
     }
 
     private User createUserFromRequestParameters(HttpServletRequest req) {
-        Role role = getRole(req.getParameter(UserParameter.ROLE.get()));
-        String login = req.getParameter(UserParameter.LOGIN.get());
-        String name = req.getParameter(UserParameter.NAME.get());
-        String surname = req.getParameter(UserParameter.SURNAME.get());
-        String password = req.getParameter(UserParameter.PASSWORD.get());
-        return new User(login, role, name, surname, password);
-    }
-
-    // TODO: not a servlet method and a duplicate
-    private Role getRole(String roleParameter) {
-        roleParameter = roleParameter == null ? Role.USER_ROLE : roleParameter;
-        switch (roleParameter) {
-            case Role.ADMIN_ROLE:
-                return new Role(Role.ADMIN_ROLE_ID, Role.ADMIN_ACCESS_LEVEL);
-            default:
-                return new Role(Role.COMMON_USER_ROLE_ID, Role.COMMON_USER_ACCESS_LEVEL);
-        }
+        Integer id = Integer.valueOf(req.getParameter(USER_ID_PARAMETER));
+        String login = req.getParameter(req.getParameter(USER_LOGIN_PARAMETER));
+        String name = req.getParameter(USER_NAME_PARAMETER);
+        String surname = req.getParameter(USER_SURNAME_PARAMETER);
+        String password = req.getParameter(USER_PASSWORD_PARAMETER);
+        return userService.createUser(id, login, password, name, surname);
     }
 }
