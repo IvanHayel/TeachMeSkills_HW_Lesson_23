@@ -1,20 +1,18 @@
 package by.teachmeskills.homework.entity;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
+@ToString(callSuper = true)
 public class Comment extends Entity {
     private User owner;
-    private String text;
+    private String content;
 
-    public Comment(@NonNull Integer id, @NonNull User owner, @NonNull String text) {
+    public Comment(@NonNull Integer id, @NonNull User owner, @NonNull String content) {
         this.id = id;
         this.owner = owner;
-        this.text = text;
+        this.content = content;
     }
 }
