@@ -6,21 +6,27 @@ import by.teachmeskills.homework.storage.EntityStorage;
 import lombok.NonNull;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UserService {
     private static final EntityStorage<User> userStorage = new EntityStorage<>();
 
-    private static UserService instance;
-
-    private UserService() {
-        User root = new User(-1, "root", "root", "root", "root");
-        userStorage.save(root);
-    }
-
     public static UserService getInstance() {
         if (instance == null) instance = new UserService();
         return instance;
+    }
+
+    private static UserService instance;
+
+    private UserService() {
+        rootRegistration();
+    }
+
+    private void rootRegistration() {
+        User root = new User(-1, "root", "root3301", "Ivan", "Hayel");
+        root.addRole(Role.ROOT);
+        userStorage.save(root);
     }
 
     public List<User> getAll() {
@@ -63,7 +69,7 @@ public class UserService {
         return removeAll(usersToDelete);
     }
 
-    public boolean isUserAlreadyExist(@NonNull User user) {
+    public boolean isUserExist(@NonNull User user) {
         return userStorage.isContains(user);
     }
 
@@ -74,8 +80,15 @@ public class UserService {
                 .anyMatch(login::equals);
     }
 
+    public boolean isIdExist(@NonNull Integer id) {
+        List<User> users = getAll();
+        return users.stream()
+                .map(User::getId)
+                .anyMatch(id::equals);
+    }
+
     public boolean isAdmin(@NonNull User user) {
-        List<Role> roles = user.getRoles();
+        Set<Role> roles = user.getRoles();
         for (Role role : roles)
             if (role.getAccessLevel() > 0) return true;
         return false;
@@ -88,11 +101,20 @@ public class UserService {
         return user;
     }
 
-    public User updateUser(@NonNull User user, String login, String password, String name, String surname) {
-        if(login != null) user.setLogin(login);
-        if(password != null) user.setPassword(password);
-        if(name != null) user.setName(name);
-        if(surname != null) user.setSurname(surname);
+    public User updateUser(@NonNull User user, String login, String password,
+                           String name, String surname) {
+        if (login != null) user.setLogin(login);
+        if (password != null) user.setPassword(password);
+        if (name != null) user.setName(name);
+        if (surname != null) user.setSurname(surname);
         return user;
+    }
+
+    public void grantAdministratorRights(@NonNull User user) {
+        user.addRole(Role.ADMIN);
+    }
+
+    public void removeAdministratorRights(@NonNull User user) {
+        user.removeRole(Role.ADMIN);
     }
 }

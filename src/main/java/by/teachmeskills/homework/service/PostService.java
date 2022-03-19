@@ -64,11 +64,35 @@ public class PostService {
         return postStorage.removeAll(posts);
     }
 
+    public void updatePostContent(@NonNull Post post, @NonNull String content) {
+        post.setContent(content);
+    }
+
+    public void likePost(@NonNull Post post, @NonNull User user) {
+        String userFullName = user.getFullName();
+        List<String> likes = post.getLikes();
+        if (!likes.remove(userFullName)) likes.add(userFullName);
+    }
+
     public boolean isOwner(@NonNull Post post, @NonNull User user) {
         return post.getOwner().equals(user);
     }
 
     public boolean isOwner(@NonNull Comment comment, @NonNull User user) {
         return comment.getOwner().equals(user);
+    }
+
+    public Comment createComment(@NonNull Post post, @NonNull User owner, String content) {
+        if (content == null) return null;
+        Integer id = post.getCommentId();
+        return new Comment(id, owner, content);
+    }
+
+    public void addComment(@NonNull Post commentedPost,@NonNull Comment comment) {
+        commentedPost.getComments().add(comment);
+    }
+
+    public void updateComment(@NonNull Comment comment, @NonNull String content) {
+        comment.setContent(content);
     }
 }
