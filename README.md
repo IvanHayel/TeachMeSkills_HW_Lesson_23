@@ -20,7 +20,7 @@
 
 ### How it works?
 
-#### [Test requests.](https://github.com/IvanHayel/TeachMeSkills_HW_Lesson_23/blob/master/src/main/requests.http)
+#### [Test requests.](https://github.com/IvanHayel/TeachMeSkills_HW_Lesson_23/blob/master/src/test/request/test-requests.http)
 
 #### Registration
 
