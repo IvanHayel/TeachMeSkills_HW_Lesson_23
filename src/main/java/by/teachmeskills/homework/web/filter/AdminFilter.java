@@ -1,9 +1,11 @@
 package by.teachmeskills.homework.web.filter;
 
 import by.teachmeskills.homework.entity.User;
-import by.teachmeskills.homework.web.constant.attribute.SessionAttribute;
-import jakarta.servlet.*;
+import by.teachmeskills.homework.service.UserService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -13,16 +15,16 @@ import lombok.SneakyThrows;
 import java.io.IOException;
 
 @WebFilter(filterName = "AdminFilter", servletNames = "AdminServlet")
-// TODO: extends HttpFilter
-public class AdminFilter implements Filter {
+public class AdminFilter extends HttpFilter {
+    private static final UserService userService = UserService.getInstance();
+    private static final String USER_SESSION_ATTRIBUTE = "user";
+
     @Override
     @SneakyThrows({IOException.class, ServletException.class})
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse resp = (HttpServletResponse) response;
+    public void doFilter(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) {
         @NonNull HttpSession session = req.getSession();
-        User currentUser = (User) session.getAttribute(SessionAttribute.USER.get());
-        if (currentUser != null && currentUser.isAdmin())
+        User currentUser = (User) session.getAttribute(USER_SESSION_ATTRIBUTE);
+        if (currentUser != null && userService.isAdmin(currentUser))
             chain.doFilter(req, resp);
         else
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
