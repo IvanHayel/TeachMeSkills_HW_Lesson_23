@@ -19,10 +19,10 @@ public class AuthorizationServlet extends HttpServlet {
     private static final String USER_SESSION_ATTRIBUTE = "user";
     private static final String USER_LOGIN_PARAMETER = "login";
     private static final String USER_PASSWORD_PARAMETER = "password";
-    private static final String ALREADY_AUTHENTICATED_MESSAGE = "You've already authenticated!";
-    private static final String INCORRECT_LOGIN_MESSAGE = "%s - not exist!";
+    private static final String ALREADY_LOGGED_IN_MESSAGE = "You're already logged in!";
+    private static final String LOGIN_NOT_EXIST_MESSAGE = "%s - not exist!";
     private static final String AUTHORIZATION_SUCCESS_MESSAGE = "Welcome, %s!";
-    private static final String PASSWORD_MISMATCH_MESSAGE = "Incorrect password for %s!";
+    private static final String PASSWORD_MISMATCH_MESSAGE = "Incorrect password for %s. Try again!";
 
     private transient HttpSession session;
     private transient PrintWriter writer;
@@ -33,17 +33,26 @@ public class AuthorizationServlet extends HttpServlet {
         session = req.getSession();
         writer = resp.getWriter();
         if (session.getAttribute(USER_SESSION_ATTRIBUTE) != null) {
-            writer.println(ALREADY_AUTHENTICATED_MESSAGE);
+            writer.println(ALREADY_LOGGED_IN_MESSAGE);
         } else {
-            @NonNull String login = req.getParameter(USER_LOGIN_PARAMETER);
-            @NonNull String password = req.getParameter(USER_PASSWORD_PARAMETER);
-            authenticate(login, password);
+            String login = req.getParameter(USER_LOGIN_PARAMETER);
+            String password = req.getParameter(USER_PASSWORD_PARAMETER);
+            if(isAnyParameterMissing(login, password))
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            else
+                logIn(login, password);
         }
     }
 
-    private void authenticate(String login, String password) {
+    private boolean isAnyParameterMissing(String... parameters) {
+        for (String parameter : parameters)
+            if (parameter == null) return true;
+        return false;
+    }
+
+    private void logIn(String login, String password) {
         if (!userService.isLoginExist(login)) {
-            writer.println(String.format(INCORRECT_LOGIN_MESSAGE, login));
+            writer.println(String.format(LOGIN_NOT_EXIST_MESSAGE, login));
         } else {
             @NonNull User user = userService.getByLogin(login);
             if (user.getPassword().equals(password)) {

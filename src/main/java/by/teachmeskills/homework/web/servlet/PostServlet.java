@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import lombok.NonNull;
 import lombok.SneakyThrows;
 
 import java.io.IOException;
@@ -22,9 +21,10 @@ public class PostServlet extends HttpServlet {
     private static final UserService userService = UserService.getInstance();
     private static final String USER_SESSION_ATTRIBUTE = "user";
     private static final String POST_ID_PARAMETER = "id";
-    private static final String POST_TEXT_PARAMETER = "text";
+    private static final String POST_CONTENT_PARAMETER = "content";
     private static final String POST_LIKE_PARAMETER = "like";
-    private static final String POST_NOT_EXIST_MESSAGE = "Post %d not exist!";
+    private static final String POST_NOT_EXIST_MESSAGE = "Post %d doesn't exist!";
+    private static final String POST_ALREADY_EXIST_MESSAGE = "Post %d already exists!";
     private static final String POST_DELETE_SUCCESS_MESSAGE = "%s deleted successfully!";
     private static final String POST_DELETE_DENY_MESSAGE = "Deleting %s denied!";
 
@@ -36,9 +36,9 @@ public class PostServlet extends HttpServlet {
     @SneakyThrows(IOException.class)
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         writer = resp.getWriter();
-        String postId = req.getParameter(POST_ID_PARAMETER);
-        if (postId == null) getAllPosts();
-        else getPostById(postId);
+        String id = req.getParameter(POST_ID_PARAMETER);
+        if (id == null) getAllPosts();
+        else getPostByRequestedId(id);
     }
 
     private void getAllPosts() {
@@ -46,10 +46,10 @@ public class PostServlet extends HttpServlet {
         writer.println(posts);
     }
 
-    private void getPostById(String postId) {
-        Integer id = Integer.valueOf(postId);
-        Post post = postService.getById(id);
-        if (post == null) writer.println(String.format(POST_NOT_EXIST_MESSAGE, id));
+    private void getPostByRequestedId(String id) {
+        Integer parsedId = Integer.valueOf(id);
+        Post post = postService.getById(parsedId);
+        if (post == null) writer.println(String.format(POST_NOT_EXIST_MESSAGE, parsedId));
         else writer.println(post);
     }
 
@@ -59,16 +59,24 @@ public class PostServlet extends HttpServlet {
         session = req.getSession();
         writer = resp.getWriter();
         currentUser = (User) session.getAttribute(USER_SESSION_ATTRIBUTE);
-        Post post = createPostFromRequestParameters(req);
-        if (postService.save(post)) writer.println(post);
-        else resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        String id = req.getParameter(POST_ID_PARAMETER);
+        String content = req.getParameter(POST_CONTENT_PARAMETER);
+        if (isAnyParameterMissing(id, content)) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        } else {
+            getCreationResult(resp, id, content);
+        }
     }
 
-    private Post createPostFromRequestParameters(HttpServletRequest req) {
-        @NonNull User owner = currentUser;
-        @NonNull Integer id = Integer.valueOf(req.getParameter(POST_ID_PARAMETER));
-        @NonNull String text = req.getParameter(POST_TEXT_PARAMETER);
-        return new Post(id, owner, text);
+    private void getCreationResult(HttpServletResponse resp, String id, String content) throws IOException {
+        Integer parsedId = Integer.valueOf(id);
+        Post post = new Post(parsedId, currentUser, content);
+        if (postService.isContains(parsedId)) {
+            writer.println(String.format(POST_ALREADY_EXIST_MESSAGE, parsedId));
+        } else {
+            if (postService.save(post)) writer.println(post);
+            else resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        }
     }
 
     @Override
@@ -77,15 +85,24 @@ public class PostServlet extends HttpServlet {
         session = req.getSession();
         writer = resp.getWriter();
         currentUser = (User) session.getAttribute(USER_SESSION_ATTRIBUTE);
-        @NonNull Integer postId = Integer.valueOf(req.getParameter(POST_ID_PARAMETER));
-        Post postToDelete = postService.getById(postId);
+        String postId = req.getParameter(POST_ID_PARAMETER);
+        if (isAnyParameterMissing(postId)) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        } else {
+            getDeletingResult(resp, postId);
+        }
+    }
+
+    private void getDeletingResult(HttpServletResponse resp, String postId) throws IOException {
+        Integer parsedPostId = Integer.valueOf(postId);
+        Post postToDelete = postService.getById(parsedPostId);
         if (postToDelete != null) {
             if (userService.isAdmin(currentUser) || postService.isOwner(postToDelete, currentUser)) {
-                if (postService.removeById(postId) != null) {
+                if (postService.removeById(parsedPostId) != null) {
                     writer.println(String.format(POST_DELETE_SUCCESS_MESSAGE, postToDelete));
                 } else writer.println(String.format(POST_DELETE_DENY_MESSAGE, postToDelete));
             } else resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else writer.println(String.format(POST_NOT_EXIST_MESSAGE, postId));
+        } else writer.println(String.format(POST_NOT_EXIST_MESSAGE, parsedPostId));
     }
 
     @Override
@@ -94,30 +111,41 @@ public class PostServlet extends HttpServlet {
         session = req.getSession();
         writer = resp.getWriter();
         currentUser = (User) session.getAttribute(USER_SESSION_ATTRIBUTE);
-        @NonNull Integer postId = Integer.valueOf(req.getParameter(POST_ID_PARAMETER));
-        Post postToUpdate = postService.getById(postId);
-        String textToUpdate = req.getParameter(POST_TEXT_PARAMETER);
+        String postId = req.getParameter(POST_ID_PARAMETER);
+        String contentToUpdate = req.getParameter(POST_CONTENT_PARAMETER);
         String like = req.getParameter(POST_LIKE_PARAMETER);
+        if (isAnyParameterMissing(postId)) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        } else {
+            getUpdatingResult(resp, postId, contentToUpdate, like);
+        }
+    }
 
+    private void getUpdatingResult(HttpServletResponse resp, String postId, String contentToUpdate, String like)
+            throws IOException {
+        Integer parsedPostId = Integer.valueOf(postId);
+        Post postToUpdate = postService.getById(parsedPostId);
         if (postToUpdate == null) {
-            writer.println(String.format(POST_NOT_EXIST_MESSAGE, postId));
+            writer.println(String.format(POST_NOT_EXIST_MESSAGE, parsedPostId));
             return;
         }
-        if (textToUpdate != null) {
+        if (contentToUpdate != null) {
             if (userService.isAdmin(currentUser) || postService.isOwner(postToUpdate, currentUser)) {
-                postToUpdate.setText(textToUpdate);
+                postService.updatePostContent(postToUpdate, contentToUpdate);
                 writer.println(postToUpdate);
             } else {
                 resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             }
         }
-        if (like != null) like(postToUpdate);
+        if (like != null) {
+            postService.likePost(postToUpdate, currentUser);
+            writer.println(postToUpdate);
+        }
     }
 
-    private void like(Post postToUpdate) {
-        String userFullName = currentUser.getFullName();
-        List<String> likes = postToUpdate.getLikes();
-        if (!likes.remove(userFullName)) likes.add(userFullName);
-        writer.println(postToUpdate);
+    private boolean isAnyParameterMissing(String... parameters) {
+        for (String parameter : parameters)
+            if (parameter == null) return true;
+        return false;
     }
 }
